@@ -1,5 +1,6 @@
 // export const dynamic = 'force-dynamic';
-import { DUMMY_NEWS } from '@/dummy-data';
+import { DUMMY_NEWS, NewsProps } from '@/dummy-data';
+import { getNewsItem } from '@/lib/news';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
@@ -10,7 +11,9 @@ export type NewsDetailPageProps = {
 
 async function NewsDetail({ params }: NewsDetailPageProps) {
   const { slug } = await params;
-  const newsDetail = DUMMY_NEWS.find((newsDetail) => newsDetail?.slug === slug);
+  // Since we use NextJS server
+  const newsDetail = await getNewsItem(slug) as NewsProps;
+  // const newsDetail = DUMMY_NEWS.find((newsDetail) => newsDetail?.slug === slug);
 
   if (!newsDetail) {
     notFound();
@@ -31,9 +34,10 @@ async function NewsDetail({ params }: NewsDetailPageProps) {
 }
 
 function NewsDetailPage({ params }: NewsDetailPageProps) {
-  return <Suspense fallback={<p>Loading...</p>}>
-    <NewsDetail params={params} />
-  </Suspense>
+  return <NewsDetail params={params} />
+  // return <Suspense fallback={<p>Loading...</p>}>
+  //   <NewsDetail params={params} />
+  // </Suspense>
 }
 
 export default NewsDetailPage;
