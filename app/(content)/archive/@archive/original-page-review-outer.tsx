@@ -1,8 +1,9 @@
 import { getAvailableNewsYears } from "@/lib/news";
 import Link from "next/link";
+import { Suspense } from "react";
 
-function Archive() {
-  const links = getAvailableNewsYears();
+async function ArchiveLinks() {
+  const links = await getAvailableNewsYears();
 
   return <header id="archive-header">
     <nav>
@@ -17,6 +18,12 @@ function Archive() {
       </ul>
     </nav>
   </header>
+}
+
+function Archive() {
+  return <Suspense fallback={<p>Loading Archive...</p>}>
+    <ArchiveLinks />
+  </Suspense>
 }
 
 export default Archive;

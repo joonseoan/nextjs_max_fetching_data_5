@@ -9,7 +9,7 @@
 return (
   <>
     {children}
-    {modal}
+    {fallback jsx}
   </>
 );
 

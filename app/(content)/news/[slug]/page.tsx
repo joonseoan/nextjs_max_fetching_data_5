@@ -34,10 +34,16 @@ async function NewsDetail({ params }: NewsDetailPageProps) {
 }
 
 function NewsDetailPage({ params }: NewsDetailPageProps) {
-  return <NewsDetail params={params} />
-  // return <Suspense fallback={<p>Loading...</p>}>
-  //   <NewsDetail params={params} />
-  // </Suspense>
+  // [IMPORTANT!]
+  // Even it is covered by `loading.ts`, it should not implement the bare children component
+  // without `<Suspense />`. The component fetching data the the async function in the server side
+  // does not know which data is coming here and then which data should be rendered in this component.
+  // return <NewsDetail params={params} />
+  
+  // Hence, `loading.ts` does not work here due to `fallback` prop.
+  return <Suspense fallback={<p>Loading...</p>}>
+    <NewsDetail params={params} />
+  </Suspense>
 }
 
 export default NewsDetailPage;

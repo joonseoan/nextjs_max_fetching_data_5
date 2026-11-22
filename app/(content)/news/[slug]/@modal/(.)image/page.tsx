@@ -1,5 +1,6 @@
-'use client';
+// 'use client';
 
+import ModalBackdrope from "@/components/news/modal-backdrope";
 /**
  * [IMPORTANT] - intercepting route & parallel route
  * Please, find next_js_parallel_intercepting_routes_guide.md in the project
@@ -25,9 +26,10 @@
 // This page is is not activated when reloading page.
 
 // It is useful when it combines with parallel routes
-import { DUMMY_NEWS } from "@/dummy-data";
+import { DUMMY_NEWS, NewsProps } from "@/dummy-data";
+import { getNewsItem } from "@/lib/news";
 import { notFound } from "next/navigation";
-import { useRouter } from "next/navigation";
+// import { useRouter } from "next/navigation";
 import { Suspense } from "react";
 import { use } from "react";
 
@@ -38,11 +40,14 @@ export type NewsImagePropsIntercepting = {
 // `async` is only in the SERVER SIDE COMPONENT!
 // The client side component does not support `async` component.
 // async function NewsImageIntercepting
-function NewsImageIntercepting({ params }: NewsImagePropsIntercepting) {
-  const router = useRouter();
+async function NewsImageIntercepting({ params }: NewsImagePropsIntercepting) {
+  // `useRouter` works only in the `use client` component.
+  // Therefore, we must use `use` hook for the promise in the client side component.
+  // However, since we use `await` for the data fetching, it gets back to the `server` side component. 
+  // const router = useRouter();
   // [IMPORTANT]
   // ONLY IN the SERVER SIDE COMPONENT!
-  // const { slug } = await params;
+  const { slug } = await params;
 
   // React 19 — use() API
   // React 19의 use()는 Context와 Promise의 값을 읽기 위한 API입니다.
@@ -81,8 +86,12 @@ function NewsImageIntercepting({ params }: NewsImagePropsIntercepting) {
       );
     }
   */
-  const { slug } = use(params);
-  const newsItem = DUMMY_NEWS.find((news) => news.slug === slug);
+  // const { slug } = use(params);
+  // const newsItem = DUMMY_NEWS.find((news) => news.slug === slug);
+  // [IMPORTANT]
+  // We can't use `await` in the `use client` component!
+  // Then, it muse implement in the server side component.
+  const newsItem = await getNewsItem(slug) as NewsProps;
 
   if (!newsItem) {
     notFound();
@@ -90,7 +99,8 @@ function NewsImageIntercepting({ params }: NewsImagePropsIntercepting) {
 
   return (
     <>
-      <div className="modal-backdrop" onClick={router.back} />
+      {/* <div className="modal-backdrop" onClick={router.back} /> */}
+      <ModalBackdrope />
       <dialog className="modal" open>
         <div className="fullscreen-image">
           <img

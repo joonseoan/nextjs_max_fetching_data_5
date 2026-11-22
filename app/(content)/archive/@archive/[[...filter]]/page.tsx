@@ -19,9 +19,8 @@
 // because NextJS recognizes that the duplicated pages exists.
 
 import Link from "next/link";
-import NewsList from "@/components/news/news-list";
-import { getAvailableNewsMonths, getNewsForYear, getNewsForYearAndMonth } from "@/lib/news";
-import { getAvailableNewsYears } from "@/lib/news";
+import NewsList, { NewsListProps } from "@/components/news/news-list";
+import { getAvailableNewsMonths, getNewsForYear, getNewsForYearAndMonth, getAvailableNewsYears } from "@/lib/news";
 import { notFound } from "next/navigation";
 import { ReactNode, Suspense } from "react";
 import { NewsProps } from "@/dummy-data";
@@ -39,17 +38,17 @@ async function FilteredNews({ params }: FilteredNewsPageProps) {
   const selectedYear = filter?.[0];
   const selectedMonth = filter?.[1];
 
-  let links = getAvailableNewsYears();
+  let links = await getAvailableNewsYears();
   let news: undefined | NewsProps[];
   let newsContent: ReactNode = <p>No news found for the selected period.</p>;
 
   if (selectedYear && !selectedMonth) {
-    news = getNewsForYear(selectedYear);
+    news = await getNewsForYear(selectedYear) as NewsProps[];
     links = getAvailableNewsMonths(selectedYear);
   }
 
   if (selectedYear && selectedMonth) {
-    news = getNewsForYearAndMonth(selectedYear, selectedMonth);
+    news = await getNewsForYearAndMonth(selectedYear, selectedMonth) as NewsProps[];
     links = [];
   }
 
@@ -58,8 +57,8 @@ async function FilteredNews({ params }: FilteredNewsPageProps) {
   }
 
   if (
-    selectedYear && !getAvailableNewsYears().includes(+selectedYear) ||
-    selectedMonth && !getAvailableNewsMonths(selectedYear).includes(+selectedMonth)
+    selectedYear && !(await getAvailableNewsYears() as string[]).includes(selectedYear) ||
+    selectedMonth && !(getAvailableNewsMonths(selectedYear) as string[]).includes(selectedMonth)
   ) {
     throw new Error('Invalid filter.');
   }
@@ -99,7 +98,7 @@ function FilteredNewsPage({ params }: FilteredNewsPageProps) {
   console.log('working at [[...filtered]]')
 
   return (
-    <Suspense>
+    <Suspense fallback={<p>Archive filtered news are loading..</p>}>
       <FilteredNews params={params}/>
     </Suspense>
   )
